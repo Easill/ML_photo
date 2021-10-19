@@ -9,7 +9,23 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import numpy as np
+import matplotlib.pyplot as plt
 
+image_size=(256, 256)
+batch_size=32
+
+data_augmentation = keras.Sequential(
+    [
+        layers.RandomFlip("horizontal_and_vertical"),
+        layers.RandomRotation(0.2),
+        layers.RandomZoom(.5,.2)
+    ]
+)
+
+# callbacks = [
+#     keras.callbacks.TensorBoard(log_dir='./logs')
+# ] #Pour garder en mémoire ce qu'il s'est passé pendant le training et la validation
+#PS : je n'ai pas encore réussi à l'implémenter dans ce que je voulais...
 def get_compiled_model():
     model.compile(
         optimizer="rmsprop",
@@ -29,13 +45,13 @@ print("========================")
 
 # Création d'un jeu de données d'images à partir d'un répertoire
 data_train = tf.keras.preprocessing.image_dataset_from_directory(
-    directory="./images",
+    directory="./projet_python",
     labels="inferred",
     label_mode="categorical",
     class_names=None,
-    color_mode="grayscale",
-    batch_size=32,
-    image_size=(256, 256),
+    color_mode="rgb",
+    batch_size=batch_size,
+    image_size=image_size,
     shuffle=True,
     interpolation="bilinear",
     validation_split=0.2,
@@ -46,13 +62,13 @@ data_train = tf.keras.preprocessing.image_dataset_from_directory(
 )
 
 data_test = tf.keras.preprocessing.image_dataset_from_directory(
-    directory="./images",
+    directory="./projet_python",
     labels="inferred",
     label_mode="categorical",
     class_names=None,
-    color_mode="grayscale",
-    batch_size=32,
-    image_size=(256, 256),
+    color_mode="rgb",
+    batch_size=batch_size,
+    image_size=image_size,
     shuffle=True,
     interpolation="bilinear",
     validation_split=0.2,
@@ -62,13 +78,43 @@ data_test = tf.keras.preprocessing.image_dataset_from_directory(
     crop_to_aspect_ratio=False
 )
 
+
+data_train = data_train.prefetch(buffer_size=32)
+data_test = data_test.prefetch(buffer_size=32)
+
 print("==========")
 print(type(data_train))
 print("==========")
 print(data_train)
 
+
 print("\n============================")
-print("2. Prétrairement des données")
+print("Affichage des 9 premières photos du jeu de données train")
+print("============================")
+
+plt.figure(figsize=(10, 10))
+for images, labels in data_train.take(1):
+    for i in range(9):
+        ax = plt.subplot(3, 3, i + 1)
+        plt.imshow(images[i].numpy().astype("uint8"))
+        plt.axis("off")
+
+print("\n============================")
+print("Affichage d'une photo sur laquelle on applique de la data augmentation")
+print("============================")
+
+
+plt.figure(figsize=(10, 10))
+for images, _ in data_train.take(1):
+    for i in range(9):
+        augmented_images = data_augmentation(images)
+        ax = plt.subplot(3, 3, i + 1)
+        plt.imshow(augmented_images[0].numpy().astype("uint8"))
+        plt.axis("off")
+
+
+print("\n============================")
+print("2. Prétraitement des données")
 print("============================")
 
 
@@ -85,7 +131,9 @@ print("==========")
 # output_data = cropper(dataset)
 # rescale = Rescaling(scale=1/256)(dataset)
 # dense = keras.layers.Dense(units = 3)
-inputs = keras.Input(shape=(256,256,1))
+
+inputs = keras.Input(shape=(256,256,3))
+
 
 # data_train = np.random.randint(0, 256, size=(32, 256, 256, 1)).astype("float32")
 print("==========")
@@ -97,15 +145,19 @@ print("=========================================")
 # Center-crop images to 150x150
 # x = layers.CenterCrop(height=150, width=150)(inputs)
 # Rescale images to [0, 1]
+
 x = layers.Rescaling(scale=1.0 / 255)(inputs)
+x = data_augmentation(x)
 print(x)
 # Apply some convolution and pooling layers
-x = layers.Conv2D(filters=32, kernel_size=(3, 3), activation="relu")(x)
+# x = layers.Dense(10, activation = 'relu')(x)
+x = layers.BatchNormalization()(x)
+x = layers.Conv2D(filters=32, kernel_size=(4, 4), activation="relu")(x)
 x = layers.MaxPooling2D(pool_size=(3, 3))(x)
-x = layers.Conv2D(filters=32, kernel_size=(3, 3), activation="relu")(x)
-x = layers.MaxPooling2D(pool_size=(3, 3))(x)
-x = layers.Conv2D(filters=32, kernel_size=(3, 3), activation="relu")(x)
-
+x = layers.Conv2D(filters=32, kernel_size=(4, 4), activation="relu")(x)
+x = layers.MaxPooling2D(pool_size=(2, 2))(x)
+x = layers.Conv2D(filters=32, kernel_size=(4, 4), activation="relu")(x)
+x = layers.Dropout(0.3, seed = 123)(x)
 # Apply global average pooling to get flat feature vectors
 x = layers.GlobalAveragePooling2D()(x)
 
@@ -128,28 +180,31 @@ model=get_compiled_model()
 #     loss="categorical_crossentropy"
 # )
 
-history=model.fit(data_train, epochs=10)
+history=model.fit(data_train, epochs=20)
 print("=========================")
 print("Evaluate")
-result=model.fit(data_train, epochs=20, validation_data=data_test)
+result=model.evaluate(data_test)
 print("=========================")
+predictions = model.predict(data_test)
+print(predictions.shape)
 # print(history.history["loss"])
 
 
-import matplotlib.pyplot as plt
+
 # fonctions de perte du modèle
-plt.plot(result.history["loss"])
+plt.plot(history.history["loss"])
 plt.ylabel("Loss")
 plt.xlabel("Epoch")
-plt.plot(result.history["val_loss"])
+# plt.plot(result[0])
 plt.show()
 
+print(result)
 
 # accuracies du modèle
-plt.plot(result.history["accuracy"])
+plt.plot(history.history["accuracy"])
 plt.ylabel("Accuracy")
 plt.xlabel("Epoch")
-plt.plot(result.history["val_accuracy"])
+# plt.plot(result.history["val_accuracy"])
 plt.show()
 
 
@@ -157,16 +212,12 @@ print("\n=======================")
 print("5. Validation du modèle")
 print("=======================")
 
+
 # Get the data as Numpy arrays
 # (x_train, y_train), (x_test, y_test) = dataset
 
 # val_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(32)
 # history = model.fit(dataset, epochs=1, validation_data=val_dataset)
-
-
-
-
-
 
 
 
