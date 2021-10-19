@@ -180,10 +180,10 @@ model=get_compiled_model()
 #     loss="categorical_crossentropy"
 # )
 
-history=model.fit(data_train, epochs=20)
+history=model.fit(data_train, epochs=20,validation_data=data_test)
 print("=========================")
-print("Evaluate")
-result=model.evaluate(data_test)
+# print("Evaluate")
+# result=model.evaluate(data_test)
 print("=========================")
 predictions = model.predict(data_test)
 print(predictions.shape)
@@ -195,16 +195,14 @@ print(predictions.shape)
 plt.plot(history.history["loss"])
 plt.ylabel("Loss")
 plt.xlabel("Epoch")
-# plt.plot(result[0])
+plt.plot(history.history["val_loss"])
 plt.show()
-
-print(result)
 
 # accuracies du modèle
 plt.plot(history.history["accuracy"])
 plt.ylabel("Accuracy")
 plt.xlabel("Epoch")
-# plt.plot(result.history["val_accuracy"])
+plt.plot(history.history["val_accuracy"])
 plt.show()
 
 
