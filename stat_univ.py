@@ -27,6 +27,8 @@ for cat in categ:
     photos.append(sumP)
     images.append(sumI)
 
+print("Nb. photos :", sum(photos))
+print("Nb. images :", sum(images))
 
 df = pd.DataFrame({"Photos": photos,
                    "Images": images},
