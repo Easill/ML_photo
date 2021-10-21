@@ -99,6 +99,7 @@ for images, labels in data_train.take(1):
         ax = plt.subplot(3, 3, i + 1)
         plt.imshow(images[i].numpy().astype("uint8"))
         plt.axis("off")
+plt.savefig("da_multi.png", dpi = 200)
 
 print("\n============================")
 print("Affichage d'une photo sur laquelle on applique de la data augmentation")
@@ -112,7 +113,7 @@ for images, _ in data_train.take(1):
         ax = plt.subplot(3, 3, i + 1)
         plt.imshow(augmented_images[0].numpy().astype("uint8"))
         plt.axis("off")
-
+plt.savefig("da_autre.png", dpi = 200)
 
 print("\n============================")
 print("2. Prétraitement des données")
@@ -153,14 +154,19 @@ print(x)
 # Apply some convolution and pooling layers
 # x = layers.Dense(10, activation = 'relu')(x)
 x = layers.BatchNormalization()(x)
-x = layers.Conv2D(filters=32, kernel_size=(4, 4), activation="relu")(x)
+x = layers.Conv2D(filters=32, kernel_size=(4, 4),
+                  activation="relu")(x)
 x = layers.MaxPooling2D(pool_size=(3, 3))(x)
-x = layers.Conv2D(filters=32, kernel_size=(4, 4), activation="relu")(x)
+x = layers.Conv2D(filters=32, kernel_size=(4, 4),
+                  activation="relu")(x)
 x = layers.MaxPooling2D(pool_size=(2, 2))(x)
-x = layers.Conv2D(filters=32, kernel_size=(4, 4), activation="relu")(x)
+
+x = layers.Conv2D(filters=32, kernel_size=(4, 4),
+                  activation="relu")(x)
+x = layers.Dropout(0.3, seed = 123)(x)
+
 # Apply global average pooling to get flat feature vectors
 x = layers.GlobalAveragePooling2D()(x)
-x = layers.Dropout(0.3, seed = 123)(x)
 
 # Add a dense classifier on top
 num_classes = 3
@@ -200,10 +206,13 @@ plt.plot(history.history["val_loss"])
 plt.show()
 
 # accuracies du modèle
-plt.plot(history.history["accuracy"])
+plt.plot(history.history["accuracy"], color="teal", label="Train")
+plt.legend("Accuracy")
 plt.ylabel("Accuracy")
 plt.xlabel("Epoch")
-plt.plot(history.history["val_accuracy"])
+plt.plot(history.history["val_accuracy"], color="forestgreen", label="Test")
+plt.legend()
+plt.savefig("accuracy.png", dpi=200)
 plt.show()
 
 
