@@ -35,6 +35,6 @@ df = pd.DataFrame({"Photos": photos,
                    index=categ)
 print(df)
 df.plot.bar(rot=0, ylim=(0, max(df.Images)+10),
-            color={"Photos": "forestgreen", "Images": "teal"})
+            color={"Photos": "forestgreen", "Images": "purple"})
 
 plt.savefig("bar_plot.png", dpi=200)
