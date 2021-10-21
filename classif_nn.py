@@ -203,7 +203,7 @@ plt.plot(history.history["val_loss"])
 plt.show()
 
 # accuracies du modèle
-plt.plot(history.history["accuracy"], color="teal", label="Train")
+plt.plot(history.history["accuracy"], color="purple", label="Train")
 plt.legend("Accuracy")
 plt.ylabel("Accuracy")
 plt.xlabel("Epoch")
