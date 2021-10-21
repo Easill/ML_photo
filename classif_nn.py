@@ -26,6 +26,7 @@ data_augmentation = keras.Sequential(
 #     keras.callbacks.TensorBoard(log_dir='./logs')
 # ] #Pour garder en mémoire ce qu'il s'est passé pendant le training et la validation
 #PS : je n'ai pas encore réussi à l'implémenter dans ce que je voulais...
+
 def get_compiled_model():
     model.compile(
         optimizer="rmsprop",
@@ -157,9 +158,9 @@ x = layers.MaxPooling2D(pool_size=(3, 3))(x)
 x = layers.Conv2D(filters=32, kernel_size=(4, 4), activation="relu")(x)
 x = layers.MaxPooling2D(pool_size=(2, 2))(x)
 x = layers.Conv2D(filters=32, kernel_size=(4, 4), activation="relu")(x)
-x = layers.Dropout(0.3, seed = 123)(x)
 # Apply global average pooling to get flat feature vectors
 x = layers.GlobalAveragePooling2D()(x)
+x = layers.Dropout(0.3, seed = 123)(x)
 
 # Add a dense classifier on top
 num_classes = 3
