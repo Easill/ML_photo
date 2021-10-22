@@ -11,24 +11,33 @@ import matplotlib.pyplot as plt
 
 # Statistiques univariées des images
 dir_images = "./projet_python"
+dir_traintest = ["Test_Data", "Training_Data"]
 categ = ["Arbre", "Fleur", "Autre"]
 
-photos = []
-images = []
-for cat in categ:
-    content = os.listdir(dir_images+"/"+cat)
-    sumP = 0  # nb photos
-    sumI = 0  # nb images
-    for file in content:
-        if file[0] == "P":
-            sumP += 1
-        else :
-            sumI += 1
-    photos.append(sumP)
-    images.append(sumI)
+# photos = []
+# images = []
+# for dir_data in dir_traintest:
+#     sumP = 0
+#     sumI = 0
+#     for cat in categ:
+#         content = os.listdir(dir_images+"/"+dir_data+"/"+cat)
+#         sumP_dir = 0  # nb photos
+#         sumI_dir = 0  # nb images
+#         for file in content:
+#             if file[0] == "P":
+#                 sumP_dir += 1
+#             else :
+#                 sumI_dir += 1
+        
+    # photos.append(sumP)
+    # images.append(sumI)
 
-print("Nb. photos :", sum(photos))
-print("Nb. images :", sum(images))
+# print("Nb. photos :", sum(photos))
+# print("Nb. images :", sum(images))
+
+photos = [32, 16, 20]
+images = [1542, 1503, 1577]
+
 
 df = pd.DataFrame({"Photos": photos,
                    "Images": images},

@@ -131,7 +131,6 @@ x = layers.Rescaling(scale=1.0 / 255)(inputs)
 # x = layers.Flatten()(x)
 print(x)
 # Apply some convolution and pooling layers
-# x = layers.Dense(10, activation = 'relu')(x)
 x = layers.BatchNormalization()(x)
 x = layers.Conv2D(filters=32, kernel_size=(3, 3),
                   activation="relu")(x)
